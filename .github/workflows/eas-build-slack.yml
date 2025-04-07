@@ -37,7 +37,9 @@ jobs:
         run: |
           BRANCH="${GITHUB_REF##*/}"
           COMMIT="${GITHUB_SHA::7}"
-          TEXT="🚀 *Preview Build Triggered!*\n📦 Repo: *${{ github.repository }}*\n🌿 Branch: *$BRANCH*\n🔗 Commit: \`$COMMIT\`\n🔧 Profile: \`preview\`*\n• 🔗 [Expo Dashboard](https://expo.dev/accounts/rn-amit/projects/expo-app/builds)"
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" || echo "No commit history available")
+          TEXT=$(cat <<EOF 🚀 *New Preview Build Triggered!*📱 *App:* World360 🔧 *Build Type:* Preview 🌿 *Branch:* $BRANCH 🧱 *Commit:* \`$COMMIT\` 🕒 *Time:* $TIMESTAMP 📋 *Recent Commits:* $RECENT_COMMITS 🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>EOF)
           curl -X POST -H "Content-type: application/json" \
             --data "{\"text\": \"$TEXT\"}" \
             "$SLACK_WEBHOOK_URL"
