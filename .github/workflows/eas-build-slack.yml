@@ -26,10 +26,10 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # - name: Trigger EAS Preview Build
-      #   run: eas build --platform all --non-interactive --profile preview
-      #   env:
-      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Trigger EAS Preview Build
+        run: eas build --platform all --non-interactive --profile preview
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send Slack Notification
         env:
