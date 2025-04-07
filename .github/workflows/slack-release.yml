@@ -5,7 +5,7 @@ on:
     types: [published]
 
 jobs:
-  notify-slack:
+  slack-notify:
     runs-on: ubuntu-latest
     steps:
       - name: Send Slack Notification
@@ -13,5 +13,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"🚀 New app release is out! Check it here: ${{ github.event.release.html_url }}"}' \
+          --data '{
+            "text": "🚀 New *${{ github.repository }}* release: *${{ github.event.release.name }}*.\n🔗 <${{ github.event.release.html_url }}|View on GitHub>"
+          }' \
           $SLACK_WEBHOOK_URL
