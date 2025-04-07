@@ -31,13 +31,33 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Send Slack Notification
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          BRANCH="${GITHUB_REF##*/}"
-          COMMIT="${GITHUB_SHA::7}"
-          TEXT="🚀 *Preview Build Triggered!*\n📦 Repo: *${{ github.repository }}*\n🌿 Branch: *$BRANCH*\n🔗 Commit: \`$COMMIT\`\n🔧 Profile: \`preview\`"
-          curl -X POST -H "Content-type: application/json" \
-            --data "{\"text\": \"$TEXT\"}" \
-            "$SLACK_WEBHOOK_URL"
+      - name: Send Slack Notification with Build URLs
+          env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+            EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          run: |
+            BRANCH="${GITHUB_REF##*/}"
+            COMMIT="${GITHUB_SHA::7}"
+
+            RESPONSE=$(curl -s -H "Authorization: Bearer $EXPO_TOKEN" \
+              "https://api.expo.dev/v2/projects/@rn-amit/expo-app/builds?limit=2")
+
+            ANDROID_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="android") | .artifacts.buildUrl' | head -n1)
+            IOS_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="ios") | .artifacts.buildUrl' | head -n1)
+
+           TEXT=$(cat <<EOF//+
+      🚀 *Preview Build Triggered!*//+
+      📦 Repo: ${{ github.repository }}//+
+      🌿 Branch: *$BRANCH*//+
+      🔧 Profile: \`preview\`//+
+      🧱 Commit: \`$COMMIT\`//+
+      📱 Android: <$ANDROID_URL>//+
+      🍏 iOS: <$IOS_URL>//+
+      🔗 <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>//+
+      EOF//+
+      )//+
+
+            curl -X POST -H "Content-type: application/json" \
+              --data "{\"text\": \"$TEXT\"}" \
+              "$SLACK_WEBHOOK_URL"
+        
