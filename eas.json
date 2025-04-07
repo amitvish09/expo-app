@@ -1,4 +1,7 @@
 {
+    "cli": {
+        "appVersionSource": "app.json"
+    },
     "build": {
         "production": {
             "releaseChannel": "production",
