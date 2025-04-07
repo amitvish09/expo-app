@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - production
+  workflow_dispatch:
 
 jobs:
   eas-build:
@@ -27,9 +28,7 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Trigger EAS Build
-        id: eas_build
-        run: |
-          eas build --platform all --non-interactive --profile production
+        run: eas build --platform all --non-interactive --profile production
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
@@ -37,12 +36,10 @@ jobs:
         run: |
           BRANCH="${GITHUB_REF##*/}"
           COMMIT="${GITHUB_SHA::7}"
-          curl -X POST -H 'Content-type: application/json' \
-          --data "{
-            \"text\": \"📦 *New EAS build triggered!*
-• Repo: *${{ github.repository }}*
-• Branch: *$BRANCH*
-• Commit: \`$COMMIT\`
-🔗 <https://expo.dev/accounts/YOUR_ACCOUNT/projects/YOUR_PROJECT/builds|View Build>\"
-          }" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+          MESSAGE=$(cat <<EOF
+{
+  "text": "📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/YOUR_ACCOUNT/projects/YOUR_PROJECT/builds|View Build>"
+}
+EOF
+)
+          curl -X POST -H "Content-type: application/json" --data "$MESSAGE" ${{ secrets.SLACK_WEBHOOK_URL }}
