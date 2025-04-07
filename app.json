@@ -31,6 +31,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4c881ba4-6bfd-492c-8709-601118ed465d"
+      }
+    },
+    "owner": "rn-amit"
   }
 }
