@@ -1,18 +1,19 @@
-name: EAS Preview Build and Slack Notification
+name: Trigger EAS Build and Notify Slack
 
 on:
   push:
     branches:
       - main
-      - develop
+      - production
   workflow_dispatch:
 
 jobs:
-  eas-preview-build:
+  eas-build:
+    name: EAS Build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Node
@@ -26,38 +27,25 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Trigger EAS Preview Build
-        run: eas build --platform all --non-interactive --profile preview
+      - name: Trigger EAS Build
+        run: eas build --platform all --non-interactive --profile production
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Send Slack Notification with Build URLs
-          env:
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-            EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          run: |
-            BRANCH="${GITHUB_REF##*/}"
-            COMMIT="${GITHUB_SHA::7}"
-
+      - name: Send Slack Notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          COMMIT="${GITHUB_SHA::7}"
+          # Fetch latest builds
             RESPONSE=$(curl -s -H "Authorization: Bearer $EXPO_TOKEN" \
               "https://api.expo.dev/v2/projects/@rn-amit/expo-app/builds?limit=2")
 
             ANDROID_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="android") | .artifacts.buildUrl' | head -n1)
             IOS_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="ios") | .artifacts.buildUrl' | head -n1)
 
-           TEXT=$(cat <<EOF//+
-      🚀 *Preview Build Triggered!*//+
-      📦 Repo: ${{ github.repository }}//+
-      🌿 Branch: *$BRANCH*//+
-      🔧 Profile: \`preview\`//+
-      🧱 Commit: \`$COMMIT\`//+
-      📱 Android: <$ANDROID_URL>//+
-      🍏 iOS: <$IOS_URL>//+
-      🔗 <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>//+
-      EOF//+
-      )//+
-
-            curl -X POST -H "Content-type: application/json" \
-              --data "{\"text\": \"$TEXT\"}" \
-              "$SLACK_WEBHOOK_URL"
-        
+          TEXT="📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/rn-amit/projects/YOUR_PROJECT/builds|View Build>*\n• 📱 [Android Build]($ANDROID_URL)*\n• 🍏 [iOS Build]($IOS_URL)*\n• 🔗 [Expo Dashboard](https://expo.dev/accounts/rn-amit/projects/expo-app/builds)"
+          curl -X POST -H "Content-type: application/json" \
+            --data "{\"text\": \"$TEXT\"}" \
+            "$SLACK_WEBHOOK_URL"
