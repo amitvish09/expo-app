@@ -26,31 +26,38 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Trigger EAS Preview Build
-        run: eas build --platform all --non-interactive --profile preview
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      # - name: Trigger EAS Preview Build
+      #   run: eas build --platform all --non-interactive --profile preview
+      #   env:
+      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send Slack Notification
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          BRANCH="${GITHUB_REF##*/}"
-          COMMIT="${GITHUB_SHA::7}"
-          VERSION=$(jq -r '.expo.version' app.json)
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" || echo "No commit history available")
-
-          TEXT="🚀 *New Preview Build Triggered!*\n"
-          TEXT+="📱 *App:* World360\n"
-          TEXT+="🏷️ *Version:* $VERSION\n"
-          TEXT+="🔧 *Build Type:* Preview\n"
-          TEXT+="🌿 *Branch:* $BRANCH\n"
-          TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
-          TEXT+="🕒 *Time:* $TIMESTAMP\n"
-          TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
-          TEXT+="🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
-
-          curl -X POST -H "Content-type: application/json" \
-            --data "{\"text\": \"$TEXT\"}" \
-            "$SLACK_WEBHOOK_URL"
+            BRANCH="${GITHUB_REF##*/}"
+            COMMIT="${GITHUB_SHA::7}"
+            VERSION=$(jq -r '.expo.version' app.json)
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" || echo "No commit history available")
+  
+            if [[ "$BRANCH" == "main" ]]; then
+              BUILD_TYPE="Production"
+            else
+              BUILD_TYPE="Preview"
+            fi
+  
+            TEXT="🚀 *New $BUILD_TYPE Build Triggered!*\n"
+            TEXT+="📱 *App:* World360\n"
+            TEXT+="🏷️ *Version:* $VERSION\n"
+            TEXT+="🔧 *Build Type:* $BUILD_TYPE\n"
+            TEXT+="🌿 *Branch:* $BRANCH\n"
+            TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
+            TEXT+="🕒 *Time:* $TIMESTAMP\n"
+            TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
+            TEXT+="🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
+  
+            curl -X POST -H "Content-type: application/json" \
+              --data "{\"text\": \"$TEXT\"}" \
+              "$SLACK_WEBHOOK_URL"
+  
