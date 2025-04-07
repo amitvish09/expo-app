@@ -33,13 +33,12 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send Slack Notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           BRANCH="${GITHUB_REF##*/}"
           COMMIT="${GITHUB_SHA::7}"
-          MESSAGE=$(cat <<EOF
-{
-  "text": "📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/YOUR_ACCOUNT/projects/YOUR_PROJECT/builds|View Build>"
-}
-EOF
-)
-          curl -X POST -H "Content-type: application/json" --data "$MESSAGE" ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEXT="📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/rn-amit/projects/YOUR_PROJECT/builds|View Build>"
+          curl -X POST -H "Content-type: application/json" \
+            --data "{\"text\": \"$TEXT\"}" \
+            "$SLACK_WEBHOOK_URL"
