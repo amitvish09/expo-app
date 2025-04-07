@@ -1,17 +1,18 @@
 {
     "cli": {
-        "appVersionSource": "remote"
+      "appVersionSource": "remote"
     },
     "build": {
-        "production": {
-            "releaseChannel": "production",
-            "distribution": "store",
-            "android": {
-                "buildType": "apk"
-            },
-            "ios": {
-                "simulator": false
-            }
-        }
+      "preview": {
+        "distribution": "internal",
+        "android": {
+          "buildType": "apk"
+        },
+        "ios": {
+          "simulator": true
+        },
+        "developmentClient": true
+      }
     }
-}
+  }
+  
