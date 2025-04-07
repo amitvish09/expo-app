@@ -32,28 +32,30 @@ jobs:
       #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send Slack Notification
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          BRANCH="${GITHUB_REF##*/}"
-          COMMIT="${GITHUB_SHA::7}"
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" || echo "No commit history available")
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        BRANCH="${GITHUB_REF##*/}"
+        COMMIT="${GITHUB_SHA::7}"
+        VERSION=$(jq -r '.expo.version' app.json)
+        TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" || echo "No commit history available")
 
-          TEXT="🚀 *New Preview Build Triggered!*\n"
-          TEXT+="📱 *App:* World360\n"
-          TEXT+="🔧 *Build Type:* Preview\n"
-          TEXT+="🌿 *Branch:* $BRANCH\n"
-          TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
-          TEXT+="🕒 *Time:* $TIMESTAMP\n"
-          TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
-          TEXT+="🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
+        TEXT="🚀 *New Preview Build Triggered!*\n"
+        TEXT+="📱 *App:* World360\n"
+        TEXT+="🏷️ *Version:* $VERSION\n"
+        TEXT+="🔧 *Build Type:* Preview\n"
+        TEXT+="🌿 *Branch:* $BRANCH\n"
+        TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
+        TEXT+="🕒 *Time:* $TIMESTAMP\n"
+        TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
+        TEXT+="🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
 
-          RESPONSE=$(curl -s -X POST -H "Content-type: application/json" \
-            --data "{\"text\": \"$TEXT\"}" \
-            "$SLACK_WEBHOOK_URL")
+        RESPONSE=$(curl -s -X POST -H "Content-type: application/json" \
+          --data "{\"text\": \"$TEXT\"}" \
+          "$SLACK_WEBHOOK_URL")
 
-          if [ "$RESPONSE" != "ok" ]; then
-            echo "Slack notification failed: $RESPONSE"
-            exit 1
-          fi
+        if [ "$RESPONSE" != "ok" ]; then
+          echo "Slack notification failed: $RESPONSE"
+          exit 1
+        fi
