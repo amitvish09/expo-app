@@ -38,14 +38,7 @@ jobs:
         run: |
           BRANCH="${GITHUB_REF##*/}"
           COMMIT="${GITHUB_SHA::7}"
-          # Fetch latest builds
-            RESPONSE=$(curl -s -H "Authorization: Bearer $EXPO_TOKEN" \
-              "https://api.expo.dev/v2/projects/@rn-amit/expo-app/builds?limit=2")
-
-            ANDROID_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="android") | .artifacts.buildUrl' | head -n1)
-            IOS_URL=$(echo "$RESPONSE" | jq -r '.data[] | select(.platform=="ios") | .artifacts.buildUrl' | head -n1)
-
-          TEXT="📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/rn-amit/projects/YOUR_PROJECT/builds|View Build>*\n• 📱 [Android Build]($ANDROID_URL)*\n• 🍏 [iOS Build]($IOS_URL)*\n• 🔗 [Expo Dashboard](https://expo.dev/accounts/rn-amit/projects/expo-app/builds)"
+          TEXT="📦 *New EAS build triggered!*\n• Repo: *${{ github.repository }}*\n• Branch: *$BRANCH*\n• Commit: \`$COMMIT\`\n🔗 <https://expo.dev/accounts/rn-amit/projects/YOUR_PROJECT/builds|View Build>"
           curl -X POST -H "Content-type: application/json" \
             --data "{\"text\": \"$TEXT\"}" \
             "$SLACK_WEBHOOK_URL"
