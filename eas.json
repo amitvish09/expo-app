@@ -1,0 +1,14 @@
+{
+    "build": {
+        "production": {
+            "releaseChannel": "production",
+            "distribution": "store",
+            "android": {
+                "buildType": "apk"
+            },
+            "ios": {
+                "simulator": false
+            }
+        }
+    }
+}

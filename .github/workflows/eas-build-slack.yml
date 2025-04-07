@@ -1,4 +1,4 @@
-name: Notify Slack on Push (and Build Trigger)
+name: Trigger EAS Build and Notify Slack
 
 on:
   push:
@@ -7,10 +7,12 @@ on:
       - production
 
 jobs:
-  notify-and-build:
+  eas-build:
+    name: EAS Build
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Node
@@ -18,30 +20,29 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Log in to EAS
-        run: eas whoami
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
       - name: Trigger EAS Build
-        run: eas build --platform all --non-interactive --profile production
+        id: eas_build
+        run: |
+          eas build --platform all --non-interactive --profile production
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Notify Slack
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send Slack Notification
         run: |
           BRANCH="${GITHUB_REF##*/}"
           COMMIT="${GITHUB_SHA::7}"
           curl -X POST -H 'Content-type: application/json' \
           --data "{
-            \"text\": \"📦 *New build triggered!*
+            \"text\": \"📦 *New EAS build triggered!*
+• Repo: *${{ github.repository }}*
 • Branch: *$BRANCH*
 • Commit: \`$COMMIT\`
-🚀 EAS Build running... <https://expo.dev/accounts/YOUR_ACCOUNT/projects/YOUR_PROJECT/builds|View builds>\"
+🔗 <https://expo.dev/accounts/YOUR_ACCOUNT/projects/YOUR_PROJECT/builds|View Build>\"
           }" \
-          $SLACK_WEBHOOK_URL
+          ${{ secrets.SLACK_WEBHOOK_URL }}
