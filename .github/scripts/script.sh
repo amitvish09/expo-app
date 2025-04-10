@@ -14,17 +14,18 @@ else
   BUILD_TYPE="Preview"
 fi
 
-TEXT="🚀 *New $BUILD_TYPE Build Triggered!*\n"
-TEXT+="📱 *App:* World360\n"
-TEXT+="🏷️ *Version:* $VERSION\n"
-TEXT+="🔧 *Build Type:* $BUILD_TYPE\n"
-TEXT+="🌿 *Branch:* $BRANCH\n"
-TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
-TEXT+="🕒 *Time:* $TIMESTAMP\n"
-TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
-TEXT+="🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
+TEXT="🚀 *New $BUILD_TYPE Build Triggered!*
+📱 *App:* World360
+🏷️ *Version:* $VERSION
+🔧 *Build Type:* $BUILD_TYPE
+🌿 *Branch:* $BRANCH
+🧱 *Commit:* \`$COMMIT\`
+🕒 *Time:* $TIMESTAMP
+📋 *Recent Commits:*
+$RECENT_COMMITS
+🔗 *Builds:* <https://expo.dev/accounts/rn-amit/projects/expo-app/builds|Open in EAS Dashboard>"
 
-payload=$(jq -n --arg text "$TEXT" '{text: $text}')
+payload=$(printf '{"text": "%s"}' "$TEXT")
 
 echo "Sending Slack notification..."
 response=$(curl -s -w "%{http_code}" -o /tmp/response.txt -X POST -H "Content-type: application/json" \
