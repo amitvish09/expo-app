@@ -33,13 +33,16 @@ jobs:
       #   run: eas build --platform all --non-interactive --profile preview
       #   env:
       #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      # - name: Trigger EAS Preview Build
+      #   run: eas build --platform all --non-interactive --profile preview
+      #   env:
+      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send Slack Notification
         if: always()
-        run: .github/scripts/script.sh "${{ secrets.SLACK_WEBHOOK_URL }}"
+        run: .github/scripts/notify-slack.sh "${{ secrets.SLACK_WEBHOOK_URL }}"
         env:
-          GITHUB_REF: ${{ github.ref }}
-          GITHUB_SHA: ${{ github.sha }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          APP_NAME: ${{ env.APP_NAME }}
+             GITHUB_REF: ${{ github.ref }}
+             GITHUB_SHA: ${{ github.sha }}
+             GITHUB_REPOSITORY: ${{ github.repository }}
+             GITHUB_RUN_ID: ${{ github.run_id }}
