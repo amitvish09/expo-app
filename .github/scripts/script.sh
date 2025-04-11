@@ -25,21 +25,18 @@ fi
 
 COMMIT="${GITHUB_SHA::7}"
 TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-APP_NAME=$(jq -r '.expo.name // "unknown"' app.json 2>/dev/null || echo "unknown")
-VERSION=$(jq -r '.expo.version // "unknown"' app.json 2>/dev/null || echo "unknown")
+APP_NAME=$(jq -r '.expo.name // "World360"' apps/world360/app.json 2>/dev/null || echo "World360")
+VERSION=$(jq -r '.expo.version // "unknown"' apps/world360/app.json 2>/dev/null || echo "unknown")
 RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" 2>/dev/null || echo "No recent commits")
 BUILD_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
-TEXT="🚀 *New $BUILD_TYPE Build Triggered!*\n"
-TEXT+="📱 *App:* $APP_NAME\n"
-TEXT+="🏷️ *Version:* $VERSION\n"
-TEXT+="🔧 *Build Type:* $BUILD_TYPE\n"
+TEXT="🔧 *Build Type:* $BUILD_TYPE\n"
+TEXT+="📱 *App Name:* $APP_NAME\n"
+TEXT+="🏷️ *Version/Tag:* $VERSION\n"
 TEXT+="🌿 *Branch/Tag:* $REF\n"
-TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
-TEXT+="🕒 *Time:* $TIMESTAMP\n"
-TEXT+="$AFFECTED_LINE"
-TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
-TEXT+="🔗 *CI Logs:* <$BUILD_URL|View Build Logs>"
+TEXT+="🕒 *Timestamp:* $TIMESTAMP\n"
+TEXT+="🔗 *CI Logs:* <$BUILD_URL|View Build Logs>\n"
+TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS"
 
 curl -X POST -H "Content-type: application/json" \
   --data "{\"text\": \"$TEXT\"}" \
