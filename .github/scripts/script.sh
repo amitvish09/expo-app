@@ -28,10 +28,9 @@ TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 APP_NAME=$(jq -r '.expo.name // "unknown"' app.json 2>/dev/null || echo "unknown")
 VERSION=$(jq -r '.expo.version // "unknown"' app.json 2>/dev/null || echo "unknown")
 RECENT_COMMITS=$(git log -3 --pretty=format:"- %s (%an)" 2>/dev/null || echo "No recent commits")
-BUILD_URL="https://expo.dev/accounts/rn-amit/projects/expo-app/builds"
+BUILD_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
 TEXT="🚀 *New $BUILD_TYPE Build Triggered!*\n"
-TEXT+="📱 *App:* $APP_NAME\n"
 TEXT+="📱 *App:* $APP_NAME\n"
 TEXT+="🏷️ *Version:* $VERSION\n"
 TEXT+="🔧 *Build Type:* $BUILD_TYPE\n"
