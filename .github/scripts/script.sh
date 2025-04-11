@@ -32,11 +32,13 @@ BUILD_URL="https://expo.dev/accounts/rn-amit/projects/expo-app/builds"
 
 TEXT="🚀 *New $BUILD_TYPE Build Triggered!*\n"
 TEXT+="📱 *App:* $APP_NAME\n"
+TEXT+="📱 *App:* $APP_NAME\n"
 TEXT+="🏷️ *Version:* $VERSION\n"
 TEXT+="🔧 *Build Type:* $BUILD_TYPE\n"
 TEXT+="🌿 *Branch/Tag:* $REF\n"
 TEXT+="🧱 *Commit:* \`$COMMIT\`\n"
 TEXT+="🕒 *Time:* $TIMESTAMP\n"
+TEXT+="$AFFECTED_LINE"
 TEXT+="📋 *Recent Commits:*\n$RECENT_COMMITS\n"
 TEXT+="🔗 *CI Logs:* <$BUILD_URL|View Build Logs>"
 
