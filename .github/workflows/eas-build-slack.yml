@@ -33,7 +33,7 @@ jobs:
 
       - name: Send Slack Notification
         if: always()
-        run: .github/scripts/notify-slack.sh "${{ secrets.SLACK_WEBHOOK_URL }}"
+        run: .github/scripts/script.sh "${{ secrets.SLACK_WEBHOOK_URL }}"
         env:
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
