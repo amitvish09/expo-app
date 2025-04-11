@@ -7,6 +7,9 @@ on:
       - develop
   workflow_dispatch:
 
+env:
+  APP_NAME: World360
+
 jobs:
   eas-preview-build:
     runs-on: ubuntu-latest
